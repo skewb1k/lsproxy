@@ -1,0 +1,23 @@
+{
+	"name": "lsproxy",
+	"bin": {
+		"lsproxy": "./src/index.ts"
+	},
+	"type": "module",
+	"scripts": {
+		"build": "bun run build.ts",
+		"format": "biome check --write",
+		"lint": "biome check"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.7",
+		"@types/bun": "^1.2.19"
+	},
+	"peerDependencies": {
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"vscode-jsonrpc": "^8.2.1",
+		"vscode-languageserver": "^9.0.1"
+	}
+}
