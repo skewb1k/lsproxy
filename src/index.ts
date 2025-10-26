@@ -37,6 +37,7 @@ async function main(): Promise<number> {
 
 	const home = process.env.HOME;
 	if (!home) throw new Error("failed to get $HOME");
+
 	const stateHome = join(home, ".local", "state");
 
 	const logDir = join(stateHome, "lsproxy");
@@ -47,13 +48,17 @@ async function main(): Promise<number> {
 
 	try {
 		const args = process.argv.slice(2);
-		const { scriptPath } = parseFlags(args);
+		let { scriptPath } = parseFlags(args);
+		if (scriptPath === null) {
+			scriptPath = join(home, ".config", "lsproxy", "script.js");
+		}
 		const script = scriptPath ? await loadScript(scriptPath) : null;
 		exitCode = await runProxy(args, script, logger);
 	} catch (err) {
 		console.log(String(err));
 		exitCode = 1;
 	}
+
 	logger.close();
 	return exitCode;
 }

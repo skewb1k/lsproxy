@@ -15,6 +15,7 @@ export type Script = {
 	>;
 };
 
+// TODO: script hot-reloading.
 export async function loadScript(scriptPath: string) {
 	try {
 		const mod = await import(`${scriptPath}?update=${Date.now()}`);
