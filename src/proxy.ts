@@ -15,6 +15,7 @@ export async function runProxy(
 	logger: Logger,
 ): Promise<number> {
 	return new Promise((resolve, reject) => {
+		// TODO: handle server errors.
 		const serverProc = spawn(args[0] as string, args.slice(1), {
 			stdio: ["pipe", "pipe", "inherit"],
 		});
@@ -25,7 +26,7 @@ export async function runProxy(
 		});
 
 		serverProc.on("exit", (code) => {
-			resolve(code ?? 0);
+			reject(`Server unexpectedly exited with code ${code}`);
 		});
 
 		const server = createMessageConnection(
@@ -89,7 +90,6 @@ export async function runProxy(
 			if (handler) {
 				params = await handler(params);
 			}
-			if (params === undefined) return;
 			logger.logMessage("client", "notification", method, params);
 			server.sendNotification(method, params);
 		});
@@ -103,7 +103,6 @@ export async function runProxy(
 					logger.logError("initialized", err);
 				}
 			}
-			if (params === undefined) return;
 			logger.logMessage("client", "notification", "initialized", params);
 			server.sendNotification("initialized", params);
 		});
@@ -117,7 +116,7 @@ export async function runProxy(
 		client.onExit(() => {
 			logger.logMessage("client", "notification", "exit", null);
 			serverProc.kill();
-			process.exit(0);
+			resolve(0);
 		});
 
 		server.onRequest(async (method, params) => {

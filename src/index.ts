@@ -8,28 +8,28 @@ import { Logger } from "./logger";
 import { runProxy } from "./proxy";
 import { loadScript } from "./script";
 
-// TODO: document how it works.
-function parseArgs(): { args: string[]; scriptPath: string | null } {
-	const args = process.argv.slice(2);
-	let scriptPath: string | null = null;
+type Flags = {
+	scriptPath: string | null;
+};
 
+// Parses command-line flags. `args` array is left with only positional arguments.
+function parseFlags(args: string[]): Flags {
+	const flags: Flags = { scriptPath: null };
 	while (args.length > 0) {
 		if (args[0] === "-s") {
 			args.shift();
-			scriptPath = args.shift() ?? null;
-			if (!scriptPath) {
+			flags.scriptPath = args.shift() ?? null;
+			if (!flags.scriptPath) {
 				throw new Error("Missing value after -s");
 			}
 			continue;
 		}
 		break;
 	}
-
 	if (args.length === 0) {
 		throw new Error("No command given to run");
 	}
-
-	return { args, scriptPath };
+	return flags;
 }
 
 async function main(): Promise<number> {
@@ -41,12 +41,13 @@ async function main(): Promise<number> {
 
 	const logDir = join(stateHome, "lsproxy");
 	await mkdir(logDir, { recursive: true });
-	const logPath = join(logDir, "log");
+	const logPath = join(logDir, "log.json");
 	const logStream = createWriteStream(logPath, { flags: "a" });
 	const logger = new Logger(logStream);
 
 	try {
-		const { args, scriptPath } = parseArgs();
+		const args = process.argv.slice(2);
+		const { scriptPath } = parseFlags(args);
 		const script = scriptPath ? await loadScript(scriptPath) : null;
 		exitCode = await runProxy(args, script, logger);
 	} catch (err) {
