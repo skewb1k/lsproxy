@@ -1,13 +1,16 @@
+import type { Logger } from "./logger";
+
 export type Script = {
 	client?: Record<
 		string,
-		(params: unknown) => Promise<object | unknown[] | undefined>
+		(params: unknown, logger: Logger) => Promise<object | unknown[] | undefined>
 	>;
 	server?: Record<
 		string,
 		(
 			result: unknown,
-			originalParams?: unknown,
+			originalParams: unknown,
+			logger: Logger,
 		) => Promise<object | unknown[] | undefined>
 	>;
 };

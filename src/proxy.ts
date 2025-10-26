@@ -44,7 +44,7 @@ export async function runProxy(
 			const handler = script?.client?.initialize;
 			if (handler) {
 				try {
-					params = (await handler(params)) as InitializeParams;
+					params = (await handler(params, logger)) as InitializeParams;
 				} catch (err) {
 					logger.logError("initialize", err);
 				}
@@ -53,7 +53,7 @@ export async function runProxy(
 			const responseHandler = script?.server?.initialize;
 			if (responseHandler !== undefined) {
 				try {
-					result = await responseHandler(result, params);
+					result = await responseHandler(result, params, logger);
 				} catch (err) {
 					logger.logError("initialize", err);
 				}
@@ -66,7 +66,7 @@ export async function runProxy(
 			const handler = script?.client?.[method];
 			if (handler) {
 				try {
-					params = await handler(params);
+					params = await handler(params, logger);
 				} catch (err) {
 					logger.logError(method, err);
 				}
@@ -76,7 +76,7 @@ export async function runProxy(
 			const responseHandler = script?.server?.[method];
 			if (responseHandler !== undefined) {
 				try {
-					result = await responseHandler(result, params);
+					result = await responseHandler(result, params, logger);
 				} catch (err) {
 					logger.logError(method, err);
 				}
@@ -88,7 +88,7 @@ export async function runProxy(
 		client.onNotification(async (method, params) => {
 			const handler = script?.client?.[method];
 			if (handler) {
-				params = await handler(params);
+				params = await handler(params, logger);
 			}
 			logger.logMessage("client", "notification", method, params);
 			server.sendNotification(method, params);
@@ -98,7 +98,7 @@ export async function runProxy(
 			const handler = script?.client?.initialized;
 			if (handler) {
 				try {
-					params = (await handler(params)) as InitializeParams;
+					params = (await handler(params, logger)) as InitializeParams;
 				} catch (err) {
 					logger.logError("initialized", err);
 				}
@@ -130,7 +130,7 @@ export async function runProxy(
 			const handler = script?.server?.[method];
 			if (handler) {
 				try {
-					params = await handler(params);
+					params = await handler(params, undefined, logger);
 				} catch (err) {
 					logger.logError(method, err);
 				}
